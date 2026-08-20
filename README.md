@@ -17,15 +17,22 @@
 ## Архитектура системы
 
 ```mermaid
-graph TD
+flowchart TD
     subgraph ClientApp ["console_app (Многопоточный клиент)"]
-        InputThread["Поток ввода (std::cin)"] -->|"app::LogItem"| TSQueue["ThreadSafeQueue<LogItem>"]
-        TSQueue -->|"wait_and_pop() (std::condition_variable)"| WorkerThread["Рабочий поток логирования"]
-        WorkerThread -->|"log_message(level, msg)"| LoggerInstance["Logger"]
-        LoggerInstance -->|"Полиморфный вывод"| SinkInterface["ISink (Интерфейс приемника)"]
-        SinkInterface -->|"Запись в файл"| FileSink["FileSink (std::ofstream)"]
-    end
+        direction TB
+        InputThread["Поток ввода (std::cin)"]
+        TSQueue["ThreadSafeQueue [LogItem]"]
+        WorkerThread["Рабочий поток логирования"]
+        LoggerInstance["Logger"]
+        SinkInterface["ISink (Интерфейс приемника)"]
+        FileSink["FileSink (std::ofstream)"]
 
+        InputThread -->|"app::LogItem"| TSQueue
+        TSQueue -->|"wait_and_pop() (std::condition_variable)"| WorkerThread
+        WorkerThread -->|"log_message(level, msg)"| LoggerInstance
+        LoggerInstance -->|"Полиморфный вывод"| SinkInterface
+        SinkInterface -->|"Запись в файл"| FileSink
+    end
 ```
 
 ---
